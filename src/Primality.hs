@@ -7,23 +7,19 @@ module Primality
     , primes
     , primeFactors
     , millerRabinPrimality
+    , factorize
+    , factorial
     ) where
 
-import Data.List
+import Data.List (group, unfoldr)
 import Data.Maybe
-import EulerUtil (factorize)
 
-factors :: Integer -> [Integer]
+factors :: Integral t => t -> [t]
 factors n
-  -- = unfoldr (\n -> listToMaybe [(x, div n x) | x <- [2..n], mod n x == 0]) n
-  -- = unfoldr (\(d,n) -> listToMaybe [(x, (x, div n x)) | x <- [d..n], mod n x == 0]) (2,n)
   = unfoldr (\(d,n') -> listToMaybe [(x, (x, div n' x)) | x <- takeWhile ((<=n').(^(2::Integer)))
                                                   [d..] ++ [n'|n'>1], mod n' x == 0]) (2,n)
  
 isPrime :: Integer -> Bool
-{-
-isPrime n = n > 1 && head (factors n) == n
--}
 isPrime n = n > 1 &&
               foldr (\p r -> p*p > n || ((n `rem` p) /= 0 && r))
                 True primes
@@ -40,9 +36,6 @@ pfactors prs n = unfoldr (\(ds, n') -> listToMaybe
                                                 ds ++ [n'|n'>1], mod n' x == 0]) (prs, n)
 
 primes :: [Integer]
-{-
-primes = 2 : 3 : [x | x<-[5,7..], head (pfactors (tail primes) x) == x]
--}
 primes = 2 : filter isPrime [3,5..]
 
 primeFactors :: Integer -> [Integer]
@@ -109,3 +102,20 @@ squareMod a b = (b * b) `rem` a
 -- (eq. to) powMod m n k = n^k `mod` m
 powMod :: Integral a => a -> a -> a -> a
 powMod m = pow' (mulMod m) (squareMod m)
+
+factorize :: Integer -> [(Integer,Integer)]
+factorize 1 = [(1,0::Integer)] -- 1^0
+factorize n = format $ factorize' n primes
+  where
+    factorize' _ [] = undefined
+    factorize' n' ps@(p:ps')
+      | p * p > n' = [n']
+      | rem n' p == 0 = p : factorize' (div n' p) ps
+      | otherwise = factorize' n' ps'
+    format ps = [(x, toInteger $ length xs) | xs@(x:_) <- group ps]
+
+factorial :: (Num t, Ord t) => t -> t
+factorial n
+  | n <= 1 = 1
+  | otherwise = n * factorial (n-1)
+ 
