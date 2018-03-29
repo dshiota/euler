@@ -20,6 +20,7 @@ library
                      , containers
                      , array
                      , memoize
+                     , fgl
   default-language:    Haskell2010
 
 executable euler-exe
@@ -31,6 +32,7 @@ executable euler-exe
                      , euler
                      , array
                      , memoize
+                     , fgl
   default-language:    Haskell2010
 
 test-suite euler-test
@@ -42,6 +44,7 @@ test-suite euler-test
                      , euler
                      , array
                      , memoize
+                     , fgl
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
